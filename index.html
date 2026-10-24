@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LVB Cinemas</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e50914;
+      margin-bottom: 30px;
+    }
+
+    .peliculas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .tarjeta {
+      width: 210px;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .tarjeta:hover {
+      transform: scale(1.04);
+    }
+
+    .tarjeta img {
+      width: 100%;
+      height: 260px;
+      object-fit: contain;
+      background: black;
+      display: block;
+    }
+
+    .tarjeta h3 {
+      text-align: center;
+      padding: 12px 8px;
+      margin: 0;
+      font-size: 16px;
+    }
+
+    #reproductor {
+      display: none;
+      max-width: 1000px;
+      margin: 35px auto;
+      text-align: center;
+    }
+
+    #video {
+      width: 100%;
+      max-height: 70vh;
+      background: black;
+      border-radius: 10px;
+    }
+
+    #descripcion {
+      color: #ccc;
+    }
+
+    .reservas {
+      background: #202020;
+      padding: 22px;
+      margin-top: 25px;
+      border-radius: 12px;
+      text-align: left;
+    }
+
+    .reservas h2 {
+      color: #e50914;
+      text-align: center;
+    }
+
+    .campo {
+      margin: 18px 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #555;
+      border-radius: 6px;
+      background: #333;
+      color: white;
+      font-size: 16px;
+    }
+
+    .horarios {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hora {
+      flex: 1 1 130px;
+      background: #333;
+      border: 2px solid #555;
+      border-radius: 8px;
+      color: white;
+      padding: 14px 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .hora:hover {
+      border-color: #e50914;
+    }
+
+    .hora.seleccionada {
+      background: #641017;
+      border-color: #e50914;
+    }
+
+    .hora strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 17px;
+    }
+
+    .precio {
+      color: #7CFC98;
+      font-weight: bold;
+    }
+
+    .resumen {
+      background: #111;
+      padding: 16px;
+      border-radius: 8px;
+      line-height: 1.8;
+      margin-top: 20px;
+    }
+
+    .boton {
+      width: 100%;
+      padding: 13px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 6px;
+      background: #e50914;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .boton:hover {
+      background: #b80710;
+    }
+
+    .cerrar {
+      background: #444;
+    }
+
+    #mensaje {
+      color: #7CFC98;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    /* VENTANA DE COMPRA FINALIZADA */
+
+    #compraFinalizada {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #compraFinalizada .contenido {
+      background: #222;
+      border: 2px solid #e50914;
+      border-radius: 15px;
+      padding: 35px 25px;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 25px rgba(229, 9, 20, 0.3);
+    }
+
+    #compraFinalizada h2 {
+      color: #7CFC98;
+      margin-top: 0;
+    }
+
+    #compraFinalizada p {
+      color: #ddd;
+      line-height: 1.6;
+    }
+
+    #compraFinalizada button {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    #compraFinalizada button:hover {
+      background: #b80710;
+    }
+
+    @media (max-width: 500px) {
+      .tarjeta {
+        width: calc(50% - 10px);
+      }
+
+      .tarjeta img {
+        height: 210px;
+      }
+
+      body {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🎬 LVB CINEMAS</h1>
+
+  <!-- TARJETAS DE PELÍCULAS -->
+
+  <div class="peliculas">
+
+    <div class="tarjeta" onclick="verPelicula('spiderman')">
+      <img src="imagenes/Spiderman.jpg" alt="Spider-Man">
+      <h3>Spider-Man: Brand New Day</h3>
+    </div>
+
+    <div class="tarjeta" onclick="verPelicula('vertigo')">
+      <img src="imagenes/Vertigo.jpg" alt="Vertigo">
+      <h3>Vertigo</h3>
+    </div>
+
+    <div class="tarjeta" onclick="verPelicula('vertigo2')">
+      <img src="imagenes/Vertigo2.jpg" alt="Vertigo 2">
+      <h3>Vertigo 2</h3>
+    </div>
+
+    <div class="tarjeta" onclick="verPelicula('coyote')">
+      <img src="imagenes/coyote.jpg" alt="Coyote vs Acme">
+      <h3>Coyote vs Acme</h3>
+    </div>
+
+    <div class="tarjeta" onclick="verPelicula('avengers')">
+      <img src="imagenes/Doomsday.jpg" alt="Avengers">
+      <h3>AVENGERS: Doomsday</h3>
+    </div>
+
+  </div>
+
+  <!-- REPRODUCTOR, FECHA Y HORARIOS -->
+
+  <section id="reproductor">
+
+    <h2 id="titulo"></h2>
+
+    <video id="video" controls autoplay playsinline>
+      Tu navegador no puede reproducir este video.
+    </video>
+
+    <p id="descripcion"></p>
+
+    <div class="reservas">
+
+      <h2>🎟️ Horarios y precios</h2>
+
+      <p>Selecciona el día en que deseas ver la película.</p>
+
+      <div class="campo">
+        <label for="fecha">📅 Elige el día, mes y año:</label>
+        <input type="date" id="fecha" required>
+      </div>
+
+      <div class="campo">
+        <label>🕒 Selecciona un horario:</label>
+        <div id="horarios" class="horarios"></div>
+      </div>
+
+      <div class="resumen">
+        <strong>Resumen de tu función</strong><br>
+        Película: <span id="resumenPelicula">-</span><br>
+        Fecha: <span id="resumenFecha">Selecciona una fecha</span><br>
+        Hora: <span id="resumenHora">Selecciona un horario</span><br>
+        Precio: <span id="resumenPrecio">$0 COP</span>
+      </div>
+
+      <button class="boton" onclick="confirmarFuncion()">
+        Confirmar selección
+      </button>
+
+      <p id="mensaje"></p>
+
+    </div>
+
+    <button class="boton cerrar" onclick="cerrarPelicula()">
+      ✖ Cerrar película
+    </button>
+
+  </section>
+
+  <!-- VENTANA CENTRADA DE COMPRA FINALIZADA -->
+
+  <div id="compraFinalizada">
+    <div class="contenido">
+
+      <h2>✓ ¡Compra finalizada!</h2>
+
+      <p>Tu selección ha sido completada correctamente.</p>
+
+      <p id="detalleCompra"></p>
+
+      <button onclick="volverAlInicio()">
+        Volver al inicio
+      </button>
+
+    </div>
+  </div>
+
+  <script>
+
+    // PELÍCULAS, VIDEOS, HORARIOS Y PRECIOS
+
+    const peliculas = {
+      spiderman: {
+        titulo: "Spider-Man: Brand New Day",
+        video: "videos/spiderman.mp4.mp4",
+        descripcion: "Disfruta de Spider-Man.",
+        horarios: [
+          { hora: "10:00 AM", precio: 12000 },
+          { hora: "1:00 PM", precio: 15000 },
+          { hora: "4:00 PM", precio: 18000 },
+          { hora: "7:00 PM", precio: 22000 },
+          { hora: "9:30 PM", precio: 20000 }
+        ]
+      },
+
+      vertigo: {
+        titulo: "Vertigo",
+        video: "videos/vertigo.mp4.mp4",
+        descripcion: "Disfruta de Vertigo.",
+        horarios: [
+          { hora: "9:00 AM", precio: 10000 },
+          { hora: "12:00 PM", precio: 13000 },
+          { hora: "3:00 PM", precio: 15000 },
+          { hora: "6:00 PM", precio: 18000 },
+          { hora: "8:30 PM", precio: 20000 }
+        ]
+      },
+
+      vertigo2: {
+        titulo: "Vertigo 2",
+        video: "videos/vertigo2.mp4.mp4",
+        descripcion: "Disfruta de Vertigo 2.",
+        horarios: [
+          { hora: "10:30 AM", precio: 11000 },
+          { hora: "1:30 PM", precio: 14000 },
+          { hora: "4:30 PM", precio: 17000 },
+          { hora: "7:30 PM", precio: 21000 }
+        ]
+      },
+
+      coyote: {
+        titulo: "Coyote vs Acme",
+        video: "videos/coyote.mp4.mp4",
+        descripcion: "Disfruta de Coyote vs Acme.",
+        horarios: [
+          { hora: "9:30 AM", precio: 10000 },
+          { hora: "12:30 PM", precio: 12000 },
+          { hora: "3:30 PM", precio: 15000 },
+          { hora: "6:30 PM", precio: 17000 },
+          { hora: "9:00 PM", precio: 19000 }
+        ]
+      },
+
+      avengers: {
+        titulo: "AVENGERS: Doomsday",
+        video: "videos/avengers.mp4",
+        descripcion: "Disfruta de Avengers.",
+        horarios: [
+          { hora: "10:00 AM", precio: 14000 },
+          { hora: "1:00 PM", precio: 17000 },
+          { hora: "4:00 PM", precio: 20000 },
+          { hora: "7:00 PM", precio: 25000 },
+          { hora: "9:45 PM", precio: 23000 }
+        ]
+      }
+    };
+
+    let peliculaActual = null;
+    let horarioSeleccionado = null;
+
+    const fechaInput = document.getElementById("fecha");
+
+    // FECHA MÍNIMA: HOY
+
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoy.getDate()).padStart(2, "0");
+    const fechaHoy = `${anio}-${mes}-${dia}`;
+
+    fechaInput.min = fechaHoy;
+    fechaInput.value = fechaHoy;
+
+    // ABRIR PELÍCULA
+
+    function verPelicula(nombre) {
+      peliculaActual = peliculas[nombre];
+      horarioSeleccionado = null;
+
+      document.getElementById("titulo").textContent =
+        peliculaActual.titulo;
+
+      document.getElementById("descripcion").textContent =
+        peliculaActual.descripcion;
+
+      document.getElementById("resumenPelicula").textContent =
+        peliculaActual.titulo;
+
+      document.getElementById("mensaje").textContent = "";
+
+      const video = document.getElementById("video");
+
+      video.pause();
+      video.src = peliculaActual.video;
+      video.load();
+
+      document.getElementById("reproductor").style.display = "block";
+
+      mostrarHorarios();
+      actualizarResumen();
+
+      document.getElementById("reproductor").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+      video.play().catch(() => {
+        // Si el navegador bloquea el inicio automático,
+        // se puede pulsar reproducir.
+      });
+    }
+
+    // MOSTRAR HORARIOS DE LA PELÍCULA
+
+    function mostrarHorarios() {
+      const contenedor = document.getElementById("horarios");
+      contenedor.innerHTML = "";
+
+      peliculaActual.horarios.forEach((funcion, indice) => {
+        const boton = document.createElement("button");
+
+        boton.type = "button";
+        boton.className = "hora";
+
+        boton.innerHTML = `
+          <strong>${funcion.hora}</strong>
+          <span class="precio">${formatearPrecio(funcion.precio)}</span>
+        `;
+
+        boton.onclick = () => {
+          horarioSeleccionado = indice;
+
+          document.querySelectorAll(".hora").forEach(b => {
+            b.classList.remove("seleccionada");
+          });
+
+          boton.classList.add("seleccionada");
+          actualizarResumen();
+
+          document.getElementById("mensaje").textContent = "";
+        };
+
+        contenedor.appendChild(boton);
+      });
+    }
+
+    // FORMATO DE PRECIO COLOMBIANO
+
+    function formatearPrecio(precio) {
+      return precio.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 0
+      });
+    }
+
+    // ACTUALIZAR RESUMEN
+
+    function actualizarResumen() {
+      const fecha = fechaInput.value;
+
+      document.getElementById("resumenFecha").textContent =
+        fecha
+          ? fecha.split("-").reverse().join("/")
+          : "Selecciona una fecha";
+
+      if (horarioSeleccionado === null || !peliculaActual) {
+        document.getElementById("resumenHora").textContent =
+          "Selecciona un horario";
+
+        document.getElementById("resumenPrecio").textContent =
+          "$0 COP";
+
+        return;
+      }
+
+      const funcion =
+        peliculaActual.horarios[horarioSeleccionado];
+
+      document.getElementById("resumenHora").textContent =
+        funcion.hora;
+
+      document.getElementById("resumenPrecio").textContent =
+        formatearPrecio(funcion.precio);
+    }
+
+    fechaInput.addEventListener("change", () => {
+      actualizarResumen();
+      document.getElementById("mensaje").textContent = "";
+    });
+
+    // CONFIRMAR Y MOSTRAR VENTANA CENTRAL
+
+    function confirmarFuncion() {
+      if (!peliculaActual) {
+        return;
+      }
+
+      if (!fechaInput.value) {
+        alert("Por favor, elige una fecha.");
+        return;
+      }
+
+      if (horarioSeleccionado === null) {
+        alert("Por favor, selecciona un horario.");
+        return;
+      }
+
+      const funcion =
+        peliculaActual.horarios[horarioSeleccionado];
+
+      const fechaBonita =
+        fechaInput.value.split("-").reverse().join("/");
+
+      document.getElementById("detalleCompra").textContent =
+        "Película: " + peliculaActual.titulo +
+        " | Fecha: " + fechaBonita +
+        " | Hora: " + funcion.hora +
+        " | Precio: " + formatearPrecio(funcion.precio);
+
+      // Ocultar el reproductor y mostrar la confirmación
+      document.getElementById("reproductor").style.display = "none";
+
+      document.getElementById("compraFinalizada").style.display =
+        "flex";
+    }
+
+    // VOLVER A LAS TARJETAS DEL INICIO
+
+    function volverAlInicio() {
+      const video = document.getElementById("video");
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      document.getElementById("compraFinalizada").style.display =
+        "none";
+
+      document.getElementById("reproductor").style.display = "none";
+
+      document.getElementById("mensaje").textContent = "";
+
+      peliculaActual = null;
+      horarioSeleccionado = null;
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    // CERRAR PELÍCULA SIN CONFIRMAR
+
+    function cerrarPelicula() {
+      const video = document.getElementById("video");
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      document.getElementById("reproductor").style.display = "none";
+      document.getElementById("mensaje").textContent = "";
+
+      peliculaActual = null;
+      horarioSeleccionado = null;
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+  </script>
+
+</body>
+</html>
